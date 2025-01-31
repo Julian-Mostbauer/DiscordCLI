@@ -1,39 +1,28 @@
-using System.Threading.Channels;
 using DiscordCLI.Network;
-using DiscordCLI.Manager;
-using Channel = DiscordCLI.Network.ResponseTypes.Channel;
 
 namespace DiscordCLI;
 
-public class Client
+public class Client(Settings settings)
 {
-    private readonly NetworkManager _networkManager;
-    private readonly ManagerClient _clientManager;
+    private readonly Settings _settings = settings;
 
-    private static Client? _instance;
-    public static Client Instance => _instance ??= new();
-
-    private Client()
+    public static Client FromSavedSettings(string settingsPath)
     {
-        _clientManager = ManagerClient.Instance;
-        _networkManager = NetworkManager.Instance;
+        if (!File.Exists(settingsPath)) throw new ArgumentException("Settings file does not exist.");
+        var content = File.ReadAllText(settingsPath);
+        try
+        {
+            var settings = Settings.FromJson(content);
+            return new Client(settings);
+        }
+        catch (Exception e)
+        {
+            throw new ArgumentException("Settings file is not valid JSON.", e);
+        }
     }
-    
+
     public void Run()
     {
-        if (_clientManager.Settings.Client.Debug)
-        {
-            Console.WriteLine("Debug Mode active");
-        }
-
-        var channels = _networkManager.GetOpenChannels().Result;
-        foreach (var channel in channels)
-        {
-            Console.WriteLine("--------------------");
-            foreach (var recipient in channel.Recipients)
-            {
-                Console.WriteLine(recipient);
-            }
-        }
+        Console.WriteLine(settings.ToJson());
     }
 }

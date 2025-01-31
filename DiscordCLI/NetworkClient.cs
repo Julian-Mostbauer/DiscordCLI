@@ -1,26 +1,19 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
-using DiscordCLI.Manager;
 using DiscordCLI.Network.ResponseTypes;
 
-namespace DiscordCLI.Network;
+namespace DiscordCLI;
 
-public class NetworkClient
+public class NetworkClient(string userToken)
 {
-    private readonly ManagerClient _clientManager = ManagerClient.Instance;
-    private readonly HttpClient _sharedClient;
-
-    public NetworkClient()
+    private readonly HttpClient _sharedClient = new()
     {
-        _sharedClient = new()
+        BaseAddress = new Uri("https://discord.com/api/v9/"),
+        DefaultRequestHeaders =
         {
-            BaseAddress = new Uri("https://discord.com/api/v9/"),
-            DefaultRequestHeaders =
-            {
-                Authorization = new AuthenticationHeaderValue(_clientManager.Settings.User.Token)
-            }
-        };
-    }
+            Authorization = new AuthenticationHeaderValue(userToken)
+        }
+    };
 
     public async Task<Channel[]> GetOpenChannels()
     {
