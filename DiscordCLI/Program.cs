@@ -4,7 +4,11 @@ static class Program
 {
     public static void Main()
     {
-        var client = Client.FromSavedSettings("/home/julian/RiderProjects/DiscordCLI/DiscordCLI/settings.json");
+        const string appPath = "/home/julian/RiderProjects/DiscordCLI/DiscordCLI/AppFiles";
+
+        var client = new Client(appPath);
         client.Run();
+        
+        client.Exit();
     }
 }

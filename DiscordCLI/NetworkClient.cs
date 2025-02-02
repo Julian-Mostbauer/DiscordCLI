@@ -4,16 +4,56 @@ using DiscordCLI.Network.ResponseTypes;
 
 namespace DiscordCLI;
 
-public class NetworkClient(string userToken)
+public class NetworkClient
 {
-    private readonly HttpClient _sharedClient = new()
+    private readonly HttpClient _sharedClient;
+    private readonly Cache _cache;
+    private readonly string _token;
+
+    public NetworkClient(string userToken, Cache cache)
     {
-        BaseAddress = new Uri("https://discord.com/api/v9/"),
-        DefaultRequestHeaders =
+        _token = userToken;
+        _sharedClient = new()
         {
-            Authorization = new AuthenticationHeaderValue(userToken)
+            BaseAddress = new Uri("https://discord.com/api/v9/"),
+            DefaultRequestHeaders =
+            {
+                Authorization = new AuthenticationHeaderValue(userToken)
+            }
+        };
+
+        _cache = cache;
+
+        if (!ValidateTokenTryCache())
+        {
+            throw new ArgumentException("Invalid token.");
         }
-    };
+    }
+
+    private bool ValidateTokenTryCache()
+    {
+        if (!_cache.IsActive) return ValidateToken();
+
+        switch (_cache.GetTokenStatus(_token))
+        {
+            case CacheStatus.Valid:
+                return true;
+            case CacheStatus.Invalid:
+                return false;
+            case CacheStatus.Unknown:
+                var isValid = ValidateToken();
+                _cache.AddToken(_token, isValid);
+                return isValid;
+            default:
+                throw new InvalidOperationException("Unknown cache status.");
+        }
+    }
+
+    private bool ValidateToken()
+    {
+        return _sharedClient.GetAsync("users/@me").Result.IsSuccessStatusCode;
+    }
+
 
     public async Task<Channel[]> GetOpenChannels()
     {

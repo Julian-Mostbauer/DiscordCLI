@@ -2,27 +2,41 @@ using DiscordCLI.Network;
 
 namespace DiscordCLI;
 
-public class Client(Settings settings)
+public class Client
 {
-    private readonly Settings _settings = settings;
+    private readonly Settings _settings;
+    private readonly NetworkClient _networkClient;
+    private readonly Cache _cache;
 
-    public static Client FromSavedSettings(string settingsPath)
+    private readonly string _appPath;
+
+    public Client(string appPath)
     {
+        _appPath = appPath;
+        var settingsPath = Path.Combine(appPath, "settings.json");
+        var cachePath = Path.Combine(appPath, "cache.csv");
+
         if (!File.Exists(settingsPath)) throw new ArgumentException("Settings file does not exist.");
-        var content = File.ReadAllText(settingsPath);
-        try
+        if (!File.Exists(cachePath))
         {
-            var settings = Settings.FromJson(content);
-            return new Client(settings);
+            File.WriteAllLines(cachePath, ["VALID:", "INVALID:"]);
         }
-        catch (Exception e)
-        {
-            throw new ArgumentException("Settings file is not valid JSON.", e);
-        }
+
+        var settingsContent = File.ReadAllText(settingsPath);
+
+        _settings = Settings.FromJson(settingsContent);
+        _cache = new Cache(_settings.Client.CacheSettings, cachePath);
+        _networkClient = new NetworkClient(_settings.UserSettings.Token, _cache);
     }
 
     public void Run()
     {
-        Console.WriteLine(settings.ToJson());
+        Console.WriteLine(_settings.ToJson());
+    }
+
+    public void Exit()
+    {
+        Console.WriteLine("Exiting...");
+        _cache.Save();
     }
 }
