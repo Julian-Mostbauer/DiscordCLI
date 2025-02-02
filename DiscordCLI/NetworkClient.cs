@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using DiscordCLI.SerializableTypes;
+using DiscordCLI.SerializableTypes.ResponseTypes;
 
 
 namespace DiscordCLI;
@@ -60,10 +61,7 @@ public class NetworkClient
     {
         var response = await _sharedClient.GetAsync("users/@me/channels");
         response.EnsureSuccessStatusCode();
-
         var jsonResponse = await response.Content.ReadAsStringAsync();
-        Console.WriteLine(jsonResponse);
-
-        return [];
+        return Channel.ManyFromJson(jsonResponse);
     }
 }
