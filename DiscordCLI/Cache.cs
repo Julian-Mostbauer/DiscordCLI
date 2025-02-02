@@ -1,3 +1,5 @@
+using DiscordCLI.SerializableTypes;
+
 namespace DiscordCLI;
 
 public enum CacheStatus

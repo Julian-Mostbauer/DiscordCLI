@@ -1,4 +1,5 @@
-using DiscordCLI.Network;
+using System.Text.Json;
+using DiscordCLI.SerializableTypes;
 
 namespace DiscordCLI;
 
@@ -31,7 +32,7 @@ public class Client
 
     public void Run()
     {
-        Console.WriteLine(_settings.ToJson());
+        var _ = _networkClient.GetOpenChannels().Result;
     }
 
     public void Exit()

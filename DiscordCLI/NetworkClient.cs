@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
-using DiscordCLI.Network.ResponseTypes;
+using DiscordCLI.SerializableTypes;
+
 
 namespace DiscordCLI;
 
@@ -61,7 +62,8 @@ public class NetworkClient
         response.EnsureSuccessStatusCode();
 
         var jsonResponse = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize(jsonResponse, ChannelJsonContext.Default.ChannelArray)
-               ?? throw new InvalidOperationException("Failed to deserialize channels");
+        Console.WriteLine(jsonResponse);
+
+        return [];
     }
 }
