@@ -25,15 +25,14 @@ public class Cache
         Settings = settings;
         Location = location;
 
-        Validate();
+        if (!File.Exists(Location))
+        {
+            File.WriteAllLines(Location, ["VALID:", "INVALID:"]);
+        }
+
         Restore();
     }
 
-    private void Validate()
-    {
-        if (!File.Exists(Location)) throw new ArgumentException("Cache file does not exist.");
-        if (Settings.Limit < 0) throw new ArgumentException("Cache limit must be non-negative.");
-    }
 
     private void Restore()
     {
@@ -84,7 +83,7 @@ public class Cache
             $"VALID:{string.Join(Separator, ValidTokens)}",
             $"INVALID:{string.Join(Separator, InvalidTokens)}"
         };
-        
+
         File.WriteAllLines(Location, content);
     }
 

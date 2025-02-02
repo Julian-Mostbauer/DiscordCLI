@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace DiscordCLI.SerializableTypes
 {
-    public partial class Channel
+    public class Channel
     {
         [JsonPropertyName("id")]
         public string Id { get; set; }

@@ -18,14 +18,8 @@ public class Client
         var cachePath = Path.Combine(appPath, "cache.csv");
 
         if (!File.Exists(settingsPath)) throw new ArgumentException("Settings file does not exist.");
-        if (!File.Exists(cachePath))
-        {
-            File.WriteAllLines(cachePath, ["VALID:", "INVALID:"]);
-        }
 
-        var settingsContent = File.ReadAllText(settingsPath);
-
-        _settings = Settings.FromJson(settingsContent);
+        _settings = Settings.FromJson(File.ReadAllText(settingsPath));
         _cache = new Cache(_settings.Client.CacheSettings, cachePath);
         _networkClient = new NetworkClient(_settings.UserSettings.Token, _cache);
     }
