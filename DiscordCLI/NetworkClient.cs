@@ -62,6 +62,7 @@ public class NetworkClient
         var response = await _sharedClient.GetAsync("users/@me/channels");
         response.EnsureSuccessStatusCode();
         var jsonResponse = await response.Content.ReadAsStringAsync();
+        Console.WriteLine(jsonResponse);
         return Channel.ManyFromJson(jsonResponse);
     }
 }

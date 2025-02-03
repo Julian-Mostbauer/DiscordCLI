@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace DiscordCLI.SerializableTypes.ResponseTypes;
 
-public class Channel: IFromJsonAble<Channel>
+public class Channel : IFromJsonAble<Channel>
 {
     [JsonPropertyName("id")] public string Id { get; set; }
 
@@ -16,10 +16,10 @@ public class Channel: IFromJsonAble<Channel>
     [JsonPropertyName("recipients")] public Recipient[] Recipients { get; set; }
 
     public static Channel FromJson(string json) =>
-        JsonSerializer.Deserialize(json, JsonContext.Default.Channel) ??
-        throw new InvalidOperationException("Failed to deserialize");
+        JsonSerializer.Deserialize(json, JsonContext.Default.Channel)
+        ?? throw new InvalidOperationException("Failed to deserialize: \n" + json);
 
     public static Channel[] ManyFromJson(string json) =>
         JsonSerializer.Deserialize(json, JsonContext.Default.ChannelArray)
-        ?? throw new InvalidOperationException("Failed to deserialize");
+        ?? throw new InvalidOperationException("Failed to deserialize: \n" + json);
 }

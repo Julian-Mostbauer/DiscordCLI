@@ -17,8 +17,8 @@ public class Recipient : IFromJsonAble<Recipient>
     public object AvatarDecorationData { get; set; }
 
     [JsonPropertyName("discriminator")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public long Discriminator { get; set; }
+//    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public string Discriminator { get; set; }
 
     [JsonPropertyName("public_flags")] public long PublicFlags { get; set; }
 
@@ -28,9 +28,9 @@ public class Recipient : IFromJsonAble<Recipient>
 
     public static Recipient FromJson(string json) =>
         JsonSerializer.Deserialize(json, JsonContext.Default.Recipient)
-        ?? throw new InvalidOperationException("Failed to deserialize");
+        ?? throw new InvalidOperationException("Failed to deserialize: \n" + json);
 
     public static Recipient[] ManyFromJson(string json) =>
         JsonSerializer.Deserialize(json, JsonContext.Default.RecipientArray)
-        ?? throw new InvalidOperationException("Failed to deserialize");
+        ?? throw new InvalidOperationException("Failed to deserialize: \n" + json);
 }
