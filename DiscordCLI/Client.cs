@@ -5,17 +5,20 @@ namespace DiscordCLI;
 
 public class Client
 {
+    private static class Constants
+    {
+        public const string SettingsFileName = "settings.json";
+        public const string TokenCacheFileName = "tokenCache.json";
+    }
+
     private readonly Settings _settings;
     private readonly NetworkClient _networkClient;
     private readonly Cache _cache;
-
-    private readonly string _appPath;
-
+    
     public Client(string appPath)
     {
-        _appPath = appPath;
-        var settingsPath = Path.Combine(appPath, "settings.json");
-        var cachePath = Path.Combine(appPath, "cache.csv");
+        var settingsPath = Path.Combine(appPath, Constants.SettingsFileName);
+        var cachePath = Path.Combine(appPath, Constants.TokenCacheFileName);
 
         if (!File.Exists(settingsPath)) throw new ArgumentException("Settings file does not exist.");
 
