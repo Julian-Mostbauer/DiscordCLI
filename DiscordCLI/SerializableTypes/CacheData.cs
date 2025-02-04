@@ -1,4 +1,5 @@
 using System.Text.Json;
+using DiscordCLI.SerializableTypes.ResponseTypes;
 
 namespace DiscordCLI.SerializableTypes;
 
@@ -7,7 +8,7 @@ public class CacheData : IFromJsonAble<CacheData>
     public HashSet<string> ValidTokens { get; set; } = new();
     public HashSet<string> InvalidTokens { get; set; } = new();
 
-    public HashSet<string> Channels { get; set; } = new();
+    public HashSet<Channel> Channels { get; set; } = new();
 
     public static CacheData FromJson(string json) =>
         JsonSerializer.Deserialize(json, JsonContext.Default.CacheData)

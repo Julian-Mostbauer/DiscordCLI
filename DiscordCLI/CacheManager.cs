@@ -1,6 +1,9 @@
 using System.Text.Json;
+using System.Threading.Channels;
+using DiscordCLI.SerializableTypes;
+using Channel = DiscordCLI.SerializableTypes.ResponseTypes.Channel;
 
-namespace DiscordCLI.SerializableTypes;
+namespace DiscordCLI;
 
 public enum CacheStatus
 {
@@ -17,6 +20,7 @@ public class CacheManager
     private CacheData? Data { get; set; }
 
     public bool IsActive => Settings.Active;
+    public bool HasStoredChannels => Data!.Channels.Count > 0;
 
     public CacheManager(CacheSettings settings, string location)
     {
@@ -75,5 +79,15 @@ public class CacheManager
         if (Data!.ValidTokens.Contains(authorizationParameter)) return CacheStatus.Valid;
         if (Data!.InvalidTokens.Contains(authorizationParameter)) return CacheStatus.Invalid;
         return CacheStatus.Unknown;
+    }
+
+    public void AddChannels(HashSet<Channel> channels)
+    {
+        Data!.Channels.UnionWith(channels);
+    }
+
+    public HashSet<Channel> GetCachedChannels()
+    {
+        return Data!.Channels;
     }
 }

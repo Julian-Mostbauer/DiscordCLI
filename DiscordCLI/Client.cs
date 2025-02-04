@@ -12,9 +12,9 @@ public class Client
     }
 
     private readonly Settings _settings;
-    private readonly NetworkClient _networkClient;
+    private readonly NetworkManager _networkManager;
     private readonly CacheManager _cacheManager;
-    
+
     public Client(string appPath)
     {
         var settingsPath = Path.Combine(appPath, Constants.SettingsFileName);
@@ -24,12 +24,13 @@ public class Client
 
         _settings = Settings.FromJson(File.ReadAllText(settingsPath));
         _cacheManager = new CacheManager(_settings.Client.CacheSettings, cachePath);
-        _networkClient = new NetworkClient(_settings.UserSettings.Token, _cacheManager);
+        _networkManager = new NetworkManager(_cacheManager, _settings.UserSettings.Token);
     }
 
     public void Run()
     {
-        var _ = _networkClient.GetOpenChannels().Result;
+        var channels = _networkManager.GetOpenChannels().Result;
+        Console.WriteLine(JsonSerializer.Serialize(channels.First(), JsonContext.Default.Channel));
     }
 
     public void Exit()

@@ -6,63 +6,74 @@ using DiscordCLI.SerializableTypes.ResponseTypes;
 
 namespace DiscordCLI;
 
-public class NetworkClient
+public class NetworkManager(CacheManager cacheManager, string token)
 {
-    private readonly HttpClient _sharedClient;
-    private readonly CacheManager _cacheManager;
-    private readonly string _token;
+    private readonly NetworkClient _networkClient = new NetworkClient(token);
 
-    public NetworkClient(string userToken, CacheManager cacheManager)
+    public async Task<HashSet<Channel>> GetOpenChannels()
     {
-        _token = userToken;
-        _sharedClient = new()
-        {
-            BaseAddress = new Uri("https://discord.com/api/v9/"),
-            DefaultRequestHeaders =
-            {
-                Authorization = new AuthenticationHeaderValue(userToken)
-            }
-        };
+        if (!cacheManager.IsActive) return await _networkClient.GetOpenChannels();
+        if (cacheManager.HasStoredChannels) return cacheManager.GetCachedChannels();
 
-        _cacheManager = cacheManager;
+        var channels = await _networkClient.GetOpenChannels();
+        cacheManager.AddChannels(channels);
 
-        if (!ValidateTokenTryCache())
-        {
-            throw new ArgumentException("Invalid token.");
-        }
+        return channels;
     }
 
-    private bool ValidateTokenTryCache()
+    private bool ValidateToken()
     {
-        if (!_cacheManager.IsActive) return ValidateToken();
+        if (!cacheManager.IsActive) return _networkClient.ValidateToken();
 
-        switch (_cacheManager.GetTokenStatus(_token))
+        switch (cacheManager.GetTokenStatus(token))
         {
             case CacheStatus.Valid:
                 return true;
             case CacheStatus.Invalid:
                 return false;
             case CacheStatus.Unknown:
-                var isValid = ValidateToken();
-                _cacheManager.AddToken(_token, isValid);
+                var isValid = _networkClient.ValidateToken();
+                cacheManager.AddToken(token, isValid);
                 return isValid;
             default:
                 throw new InvalidOperationException("Unknown cache status.");
         }
     }
 
-    private bool ValidateToken()
+    private class NetworkClient
     {
-        return _sharedClient.GetAsync("users/@me").Result.IsSuccessStatusCode;
-    }
+        private readonly HttpClient _sharedClient;
+        private readonly string _token;
 
+        public NetworkClient(string userToken)
+        {
+            _token = userToken;
+            _sharedClient = new()
+            {
+                BaseAddress = new Uri("https://discord.com/api/v9/"),
+                DefaultRequestHeaders =
+                {
+                    Authorization = new AuthenticationHeaderValue(userToken)
+                }
+            };
 
-    public async Task<Channel[]> GetOpenChannels()
-    {
-        var response = await _sharedClient.GetAsync("users/@me/channels");
-        response.EnsureSuccessStatusCode();
-        var jsonResponse = await response.Content.ReadAsStringAsync();
-        Console.WriteLine(jsonResponse);
-        return Channel.ManyFromJson(jsonResponse);
+            if (!ValidateToken())
+            {
+                throw new ArgumentException("Invalid token.");
+            }
+        }
+
+        public bool ValidateToken()
+        {
+            return _sharedClient.GetAsync("users/@me").Result.IsSuccessStatusCode;
+        }
+
+        public async Task<HashSet<Channel>> GetOpenChannels()
+        {
+            var response = await _sharedClient.GetAsync("users/@me/channels");
+            response.EnsureSuccessStatusCode();
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            return Channel.ManyFromJson(jsonResponse).ToHashSet();
+        }
     }
 }

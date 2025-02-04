@@ -14,7 +14,7 @@ public class Recipient : IFromJsonAble<Recipient>
     [JsonPropertyName("avatar")] public string Avatar { get; set; }
 
     [JsonPropertyName("avatar_decoration_data")]
-    public object AvatarDecorationData { get; set; }
+    public JsonElement AvatarDecorationData { get; set; }
 
     [JsonPropertyName("discriminator")]
 //    [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -22,9 +22,9 @@ public class Recipient : IFromJsonAble<Recipient>
 
     [JsonPropertyName("public_flags")] public long PublicFlags { get; set; }
 
-    [JsonPropertyName("primary_guild")] public object PrimaryGuild { get; set; }
+    [JsonPropertyName("primary_guild")] public JsonElement PrimaryGuild { get; set; }
 
-    [JsonPropertyName("clan")] public object Clan { get; set; }
+    [JsonPropertyName("clan")] public JsonElement Clan { get; set; }
 
     public static Recipient FromJson(string json) =>
         JsonSerializer.Deserialize(json, JsonContext.Default.Recipient)
