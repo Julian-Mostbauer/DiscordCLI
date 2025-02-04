@@ -23,7 +23,7 @@ public class NetworkManager
     private readonly CacheManager _cacheManager;
     private readonly string _token;
 
-    public async Task<bool> SendMessage(string channelId, string msg)
+    public async Task<HttpResponseMessage> SendMessage(string channelId, string msg)
     {
         return await _networkClient.SendMessage(channelId, msg);
     }
@@ -89,18 +89,14 @@ public class NetworkManager
             return Channel.ManyFromJson(jsonResponse).ToHashSet();
         }
 
-        public async Task<bool> SendMessage(string channelId, string msg)
+        public async Task<HttpResponseMessage> SendMessage(string channelId, string msg)
         {
             var json = JsonSerializer.Serialize(new Message { Content = msg }, JsonContext.Default.Message);
 
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _sharedClient.PostAsync($"channels/{channelId}/messages", content);
 
-            if (response.IsSuccessStatusCode) return true;
-
-            var responseContent = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("Error: " + responseContent);
-            return false;
+            return response;
         }
     }
 }
