@@ -1,5 +1,5 @@
 using System.Text.Json;
-using DiscordCLI.SerializableTypes.ResponseTypes;
+using DiscordCLI.SerializableTypes.DiscordTypes;
 
 namespace DiscordCLI.SerializableTypes;
 

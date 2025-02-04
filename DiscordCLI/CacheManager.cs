@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Threading.Channels;
 using DiscordCLI.SerializableTypes;
-using Channel = DiscordCLI.SerializableTypes.ResponseTypes.Channel;
+using Channel = DiscordCLI.SerializableTypes.DiscordTypes.Channel;
 
 namespace DiscordCLI;
 

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace DiscordCLI.SerializableTypes.ResponseTypes;
+namespace DiscordCLI.SerializableTypes.DiscordTypes;
 
 public class Channel : IFromJsonAble<Channel>
 {

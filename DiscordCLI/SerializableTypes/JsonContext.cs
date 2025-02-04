@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using DiscordCLI.SerializableTypes.ResponseTypes;
+using DiscordCLI.SerializableTypes.DiscordTypes;
 
 namespace DiscordCLI.SerializableTypes
 {
@@ -16,6 +16,7 @@ namespace DiscordCLI.SerializableTypes
     [JsonSerializable(typeof(Recipient[]))]
     [JsonSerializable(typeof(CacheData))]
     [JsonSerializable(typeof(CacheData[]))]
+    [JsonSerializable(typeof(Message))]
     [JsonSourceGenerationOptions(WriteIndented = true)]
     internal partial class JsonContext : JsonSerializerContext
     {

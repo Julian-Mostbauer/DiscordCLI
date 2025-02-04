@@ -1,7 +1,9 @@
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using DiscordCLI.SerializableTypes;
-using DiscordCLI.SerializableTypes.ResponseTypes;
+using DiscordCLI.SerializableTypes.DiscordTypes;
 
 
 namespace DiscordCLI;
@@ -13,13 +15,18 @@ public class NetworkManager
         _cacheManager = cacheManager;
         _token = token;
         _networkClient = new NetworkClient(token);
-        
+
         if (!ValidateToken()) throw new ArgumentException("Invalid token.");
     }
 
     private readonly NetworkClient _networkClient;
     private readonly CacheManager _cacheManager;
     private readonly string _token;
+
+    public async Task<bool> SendMessage(string channelId, string msg)
+    {
+        return await _networkClient.SendMessage(channelId, msg);
+    }
 
     public async Task<HashSet<Channel>> GetOpenChannels()
     {
@@ -80,6 +87,20 @@ public class NetworkManager
             response.EnsureSuccessStatusCode();
             var jsonResponse = await response.Content.ReadAsStringAsync();
             return Channel.ManyFromJson(jsonResponse).ToHashSet();
+        }
+
+        public async Task<bool> SendMessage(string channelId, string msg)
+        {
+            var json = JsonSerializer.Serialize(new Message { Content = msg }, JsonContext.Default.Message);
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _sharedClient.PostAsync($"channels/{channelId}/messages", content);
+
+            if (response.IsSuccessStatusCode) return true;
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Error: " + responseContent);
+            return false;
         }
     }
 }

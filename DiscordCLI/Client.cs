@@ -30,7 +30,16 @@ public class Client
     public void Run()
     {
         var channels = _networkManager.GetOpenChannels().Result;
-        Console.WriteLine(JsonSerializer.Serialize(channels.First(), JsonContext.Default.Channel));
+        var erikChannel = channels.First(c => c.Recipients.First().Username == "integr_");
+
+        string msg;
+        do
+        {
+            Console.Write("Enter message: ");
+            msg = Console.ReadLine()!;
+            var res = _networkManager.SendMessage(erikChannel.Id, msg).Result;
+            Console.WriteLine(res ? "Message sent." : "Failed to send message.");
+        } while (msg != "exit");
     }
 
     public void Exit()
