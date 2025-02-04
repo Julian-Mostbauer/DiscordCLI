@@ -9,10 +9,10 @@ namespace DiscordCLI;
 public class NetworkClient
 {
     private readonly HttpClient _sharedClient;
-    private readonly Cache _cache;
+    private readonly CacheManager _cacheManager;
     private readonly string _token;
 
-    public NetworkClient(string userToken, Cache cache)
+    public NetworkClient(string userToken, CacheManager cacheManager)
     {
         _token = userToken;
         _sharedClient = new()
@@ -24,7 +24,7 @@ public class NetworkClient
             }
         };
 
-        _cache = cache;
+        _cacheManager = cacheManager;
 
         if (!ValidateTokenTryCache())
         {
@@ -34,9 +34,9 @@ public class NetworkClient
 
     private bool ValidateTokenTryCache()
     {
-        if (!_cache.IsActive) return ValidateToken();
+        if (!_cacheManager.IsActive) return ValidateToken();
 
-        switch (_cache.GetTokenStatus(_token))
+        switch (_cacheManager.GetTokenStatus(_token))
         {
             case CacheStatus.Valid:
                 return true;
@@ -44,7 +44,7 @@ public class NetworkClient
                 return false;
             case CacheStatus.Unknown:
                 var isValid = ValidateToken();
-                _cache.AddToken(_token, isValid);
+                _cacheManager.AddToken(_token, isValid);
                 return isValid;
             default:
                 throw new InvalidOperationException("Unknown cache status.");

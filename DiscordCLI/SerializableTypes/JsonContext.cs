@@ -13,6 +13,8 @@ namespace DiscordCLI.SerializableTypes
     [JsonSerializable(typeof(Channel[]))]
     [JsonSerializable(typeof(Recipient))]
     [JsonSerializable(typeof(Recipient[]))]
+    [JsonSerializable(typeof(CacheData))]
+    [JsonSerializable(typeof(CacheData[]))]
     [JsonSourceGenerationOptions(WriteIndented = true)]
     internal partial class JsonContext : JsonSerializerContext
     {

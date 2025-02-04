@@ -8,23 +8,23 @@ public class Client
     private static class Constants
     {
         public const string SettingsFileName = "settings.json";
-        public const string TokenCacheFileName = "tokenCache.json";
+        public const string CacheFileName = "cacheData.json";
     }
 
     private readonly Settings _settings;
     private readonly NetworkClient _networkClient;
-    private readonly Cache _cache;
+    private readonly CacheManager _cacheManager;
     
     public Client(string appPath)
     {
         var settingsPath = Path.Combine(appPath, Constants.SettingsFileName);
-        var cachePath = Path.Combine(appPath, Constants.TokenCacheFileName);
+        var cachePath = Path.Combine(appPath, Constants.CacheFileName);
 
         if (!File.Exists(settingsPath)) throw new ArgumentException("Settings file does not exist.");
 
         _settings = Settings.FromJson(File.ReadAllText(settingsPath));
-        _cache = new Cache(_settings.Client.CacheSettings, cachePath);
-        _networkClient = new NetworkClient(_settings.UserSettings.Token, _cache);
+        _cacheManager = new CacheManager(_settings.Client.CacheSettings, cachePath);
+        _networkClient = new NetworkClient(_settings.UserSettings.Token, _cacheManager);
     }
 
     public void Run()
@@ -35,6 +35,6 @@ public class Client
     public void Exit()
     {
         Console.WriteLine("Exiting...");
-        _cache.Save();
+        _cacheManager.Save();
     }
 }
