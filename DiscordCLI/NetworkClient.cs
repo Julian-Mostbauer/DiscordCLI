@@ -6,26 +6,37 @@ using DiscordCLI.SerializableTypes.ResponseTypes;
 
 namespace DiscordCLI;
 
-public class NetworkManager(CacheManager cacheManager, string token)
+public class NetworkManager
 {
-    private readonly NetworkClient _networkClient = new NetworkClient(token);
+    public NetworkManager(CacheManager cacheManager, string token)
+    {
+        _cacheManager = cacheManager;
+        _token = token;
+        _networkClient = new NetworkClient(token);
+        
+        if (!ValidateToken()) throw new ArgumentException("Invalid token.");
+    }
+
+    private readonly NetworkClient _networkClient;
+    private readonly CacheManager _cacheManager;
+    private readonly string _token;
 
     public async Task<HashSet<Channel>> GetOpenChannels()
     {
-        if (!cacheManager.IsActive) return await _networkClient.GetOpenChannels();
-        if (cacheManager.HasStoredChannels) return cacheManager.GetCachedChannels();
+        if (!_cacheManager.IsActive) return await _networkClient.GetOpenChannels();
+        if (_cacheManager.HasStoredChannels) return _cacheManager.GetCachedChannels();
 
         var channels = await _networkClient.GetOpenChannels();
-        cacheManager.AddChannels(channels);
+        _cacheManager.AddChannels(channels);
 
         return channels;
     }
 
     private bool ValidateToken()
     {
-        if (!cacheManager.IsActive) return _networkClient.ValidateToken();
+        if (!_cacheManager.IsActive) return _networkClient.ValidateToken();
 
-        switch (cacheManager.GetTokenStatus(token))
+        switch (_cacheManager.GetTokenStatus(_token))
         {
             case CacheStatus.Valid:
                 return true;
@@ -33,7 +44,7 @@ public class NetworkManager(CacheManager cacheManager, string token)
                 return false;
             case CacheStatus.Unknown:
                 var isValid = _networkClient.ValidateToken();
-                cacheManager.AddToken(token, isValid);
+                _cacheManager.AddToken(_token, isValid);
                 return isValid;
             default:
                 throw new InvalidOperationException("Unknown cache status.");
@@ -56,11 +67,6 @@ public class NetworkManager(CacheManager cacheManager, string token)
                     Authorization = new AuthenticationHeaderValue(userToken)
                 }
             };
-
-            if (!ValidateToken())
-            {
-                throw new ArgumentException("Invalid token.");
-            }
         }
 
         public bool ValidateToken()
