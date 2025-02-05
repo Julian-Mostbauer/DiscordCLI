@@ -30,38 +30,13 @@ public class Client
 
     public async Task Run()
     {
-        bool IsPrime(int n)
-        {
-            if (n < 2) return false;
-            if (n < 4) return true;
-            if (n % 2 == 0) return false;
-
-            for (int i = 3; i <= Math.Sqrt(n); i += 2)
-            {
-                if (n % i == 0) return false;
-            }
-
-            return true;
-        }
-
         var channels = _networkManager.GetOpenChannels().Result;
-        var erikChannel = channels.First(c => c.Recipients.First().Username == "integr_");
+        var exampleChannel = channels.First(c => c.Recipients.First().Username == "kxrim_ae");
 
-        for (int i = 2; i < 10000; i++)
+        var res = _networkManager.SendMessage(exampleChannel.Id, "Hello, World!").Result;
+        if (!res.IsSuccessStatusCode)
         {
-            Console.WriteLine($"Checking {i}");
-            if (!IsPrime(i)) continue;
-
-            var success = await _networkManager.SendMessage(erikChannel.Id, $"Prime number found: {i}");
-
-            if (!success.IsSuccessStatusCode)
-            {
-                var res = success.Content.ReadAsStringAsync().Result;
-                Console.WriteLine(res);
-
-                var error = MessageErrorResponse.FromJson(res);
-                await Task.Delay(3 * (int)(1000 * error.RetryAfter));
-            }
+            Console.WriteLine(res.Content.ReadAsStringAsync().Result);
         }
     }
 
