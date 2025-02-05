@@ -6,7 +6,7 @@ namespace DiscordCLI.SerializableTypes
     [JsonSerializable(typeof(Settings[]))]
     [JsonSerializable(typeof(Settings))]
     [JsonSerializable(typeof(ClientSettings))]
-    [JsonSerializable(typeof(Activity))]
+    [JsonSerializable(typeof(ActivitySettings))]
     [JsonSerializable(typeof(CacheSettings))]
     [JsonSerializable(typeof(UserSettings))]
     [JsonSerializable(typeof(Channel))]
